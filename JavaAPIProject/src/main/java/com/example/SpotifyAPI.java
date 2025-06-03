@@ -16,7 +16,7 @@ import org.json.JSONObject;
  *
  */
 public class SpotifyAPI {
-    private static String[][] modGenre = new String[100][100];
+    private static String[][] modGenre = new String[1000][1000];
     private static int totalDurationMs = 0;
     private static int totalTracks = 0;
 
@@ -74,9 +74,9 @@ public class SpotifyAPI {
         return firstResult; 
     }
 
-    /**
+    /*
      * Returns a string with the total follower count of the artist
-     **/
+     */
     public static String getArtistFollowing(String artist) throws IOException { // WORKS
         String token = getAccessToken(); 
         // System.out.println(token); // testing
@@ -98,9 +98,9 @@ public class SpotifyAPI {
         return "Total followers: " + total;
     }
     
-    /**
+    /*
      * Returns popularity level of the given artist
-     **/
+     */
     public static String getArtistPopularity(String artist) throws IOException { // WORKS
         JSONObject everything = getOneArtistInfo(artist);
         int popularity = everything.getInt("popularity");
@@ -118,9 +118,9 @@ public class SpotifyAPI {
         return genres.toString();
     }
 
-    /**
+    /*
      * Returns the genre string of the modified artist
-     **/
+     */
     public static String getModifiedArtistGenre(String artist) { // WORKS
         String genreString = "";
         for (int r = 0; r < modGenre.length; r ++) {
@@ -138,9 +138,9 @@ public class SpotifyAPI {
         return "Genres: " + genreString;
     }
 
-    /**
+    /*
      * This is meant to keep track of who is modified and to also set the new genre to the artist
-     **/
+     */
     public static void setModifiedArtistGenre(String artist, String newGenre) { // WORKS
         for (int r = 0; r < modGenre.length; r ++) { // iterates through the 
             if (modGenre[r][0] == null) {
@@ -153,10 +153,10 @@ public class SpotifyAPI {
         }
     }
 
-    /**
+    /*
      * Returns a nice list of the given artists top 5 tracks, without any formatting
      * The lack of formatting is needed for a searching feature in App.java
-    **/
+    */
     public static ArrayList<String> getArtistTopTracksRaw(String artist) throws IOException {
         String token = getAccessToken();
         JSONObject artistInfo = getOneArtistInfo(artist);
@@ -179,7 +179,7 @@ public class SpotifyAPI {
         return trackList;
     }
 
-    /**
+    /*
      * Used to format the track list given getArtistTopTracksRaw(String artist)
      * Returns with nicely formatted numbers
      */

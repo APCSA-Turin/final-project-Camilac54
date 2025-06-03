@@ -103,6 +103,7 @@ public class App {
             }
 
             if (option == 3) {
+                clearConsole();
                 System.out.println("\nWelcome to the customizing section! You can change the general border here!");
                 System.out.print("Please type what you want your new border to look like: ");
                 String border = scanner.nextLine();
@@ -116,6 +117,7 @@ public class App {
             }
 
             if (option == 4) {
+                clearConsole();
                 System.out.println(custom.getBorder());
                 System.out.print("You made it to fun trivia!\nPlease enter an artist's name to learn about their albums: ");
                 String triviaName = scanner.nextLine();
