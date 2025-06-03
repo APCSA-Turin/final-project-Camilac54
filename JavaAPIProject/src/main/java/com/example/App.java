@@ -12,6 +12,7 @@ public class App {
         
         public static void main( String[] args ) throws IOException, InterruptedException {
         ArrayList <String> updater = new ArrayList();
+        Customize custom = new Customize();
         Scanner scanner = new Scanner(System.in);
         System.out.println("♡   ∩_∩ \r\n" +
                         "╭ („•֊•„)♡  ୨୧ ┈┈ • ┈┈ • ┈┈ • ┈╮\r\n" +
@@ -20,6 +21,7 @@ public class App {
         System.out.print("Menu: \n    1. Artist Information\n    2. User Information\n    3. Customize\n    4. Trivia\n    5. Exit\n  Please type a number: ");
         int option = scanner.nextInt();
         scanner.nextLine();
+        System.out.println("\n╰┈ • ┈┈ • ┈┈ • ୨୧ • ┈┈ • ┈┈ • ┈╯");
         while (option != 5) {
 
             if (option == 1) {
@@ -27,7 +29,7 @@ public class App {
                 System.out.print("\n\n    • Please type an artists name: ");
                 String name = scanner.nextLine();
                 Thread.sleep(1000);
-                System.out.println("\n     ════════════════════════════════════");
+                System.out.println("\n    " + custom.getBorder());
                 ArrayList<String> topTracks = SpotifyAPI.getArtistTopTracksRaw(name);
                 System.out.print("    〢" + SpotifyAPI.formatTopTracks(topTracks));
                 Thread.sleep(1000);
@@ -39,7 +41,7 @@ public class App {
                 } else {
                     System.out.println("    〢" + SpotifyAPI.getArtistGenre(name));
                 }         
-                System.out.println("     ════════════════════════════════════\n");
+                System.out.println("     " + custom.getBorder() +"\n");
                 if (SpotifyAPI.getArtistGenre(name).equals("Genres: ") && updater.indexOf(name) == -1) {
                     System.out.print("\n\n    • It seems there is no saved genre for this artist.\n    • Would you like to add one? (Y/N)  ");
                     String answer = scanner.nextLine();
@@ -79,15 +81,19 @@ public class App {
             }
 
             if (option == 2) {
-                System.out.print("What would you like to access?\n    1. Favorite Artists\n    2. Favorite Tracks\n    3. Exit\n  Please type a number: ");
+                System.out.print("\nWhat would you like to access?\n    1. Favorite Artists\n    2. Favorite Tracks\n    3. Exit\n  Please type a number: ");
                 int access = scanner.nextInt();
                 scanner.nextLine();
                 if (access == 1) {
                     clearConsole();
+                    System.out.println(custom.getBorder());
                     System.out.println("\n" + SpotifyUser.getFavArtistList() + "\n");
+                    System.out.println(custom.getBorder());
                 } else if (access == 2) {
                     clearConsole();
+                    System.out.println(custom.getBorder());
                     System.out.println("\n" + SpotifyUser.getFavoriteTrackList() + "\n");
+                    System.out.println(custom.getBorder());
                 } else {
                     clearConsole();
                     System.out.print("Menu: \n    1. Artist Information\n    2. User Information\n    3. Customize\n    4. Trivia\n    5. Exit\n  Please type a number: ");
@@ -97,23 +103,33 @@ public class App {
             }
 
             if (option == 3) {
+                System.out.println("\nWelcome to the customizing section! You can change the general border here!");
+                System.out.print("Please type what you want your new border to look like: ");
+                String border = scanner.nextLine();
+                custom.setBorder(border);
+                System.out.println("Change successful!");
+                Thread.sleep(3000);
+                System.out.print("Menu: \n    1. Artist Information\n    2. User Information\n    3. Customize\n    4. Trivia\n    5. Exit\n  Please type a number: ");
+                option = scanner.nextInt();
+                scanner.nextLine();
 
             }
 
             if (option == 4) {
-            System.out.print("You made it to fun trivia!\nPlease enter an artist's name to learn about their albums: ");
-            String triviaName = scanner.nextLine();
-            SpotifyAPI.getArtistAlbums(triviaName);
-            System.out.println("\n" + SpotifyAPI.getAlbumStats() + "\n");
-            Thread.sleep(3000);
-            clearConsole();
-            System.out.print("Menu: \n    1. Artist Information\n    2. User Information\n    3. Customize\n    4. Trivia\n    5. Exit\n  Please type a number: ");
-            option = scanner.nextInt();
-            scanner.nextLine();
+                System.out.println(custom.getBorder());
+                System.out.print("You made it to fun trivia!\nPlease enter an artist's name to learn about their albums: ");
+                String triviaName = scanner.nextLine();
+                SpotifyAPI.getArtistAlbums(triviaName);
+                System.out.println("\n" + SpotifyAPI.getAlbumStats() + "\n");
+                Thread.sleep(3000);
+                clearConsole();
+                System.out.println(custom.getBorder());
+                System.out.print("Menu: \n    1. Artist Information\n    2. User Information\n    3. Customize\n    4. Trivia\n    5. Exit\n  Please type a number: ");
+                option = scanner.nextInt();
+                scanner.nextLine();
             }
         }
 
-        // System.out.println("\n╰┈ • ┈┈ • ┈┈ • ୨୧ • ┈┈ • ┈┈ • ┈╯");
         
         System.out.print("\n♡   ∩_∩ \r\n" +
                 "╭ („•֊•„)♡  ୨୧ ┈┈ • ┈┈ • ┈┈ • ┈╮\r\n" +
