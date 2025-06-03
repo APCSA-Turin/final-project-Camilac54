@@ -3,12 +3,12 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Base64;
-import java.util.Scanner;
+import java.util.List;
+
 import org.json.JSONArray;
 import org.json.JSONObject;
 /**
@@ -17,6 +17,9 @@ import org.json.JSONObject;
  */
 public class SpotifyAPI {
     private static String[][] modGenre = new String[100][100];
+    private static int totalDurationMs = 0;
+    private static int totalTracks = 0;
+
     
     public static void main( String[] args ) throws IOException {}
     
@@ -71,7 +74,9 @@ public class SpotifyAPI {
         return firstResult; 
     }
 
-    // Returns a string with the total follower count of the artist
+    /**
+     * Returns a string with the total follower count of the artist
+     **/
     public static String getArtistFollowing(String artist) throws IOException { // WORKS
         String token = getAccessToken(); 
         // System.out.println(token); // testing
@@ -92,8 +97,10 @@ public class SpotifyAPI {
         int total = followers.getInt("total");
         return "Total followers: " + total;
     }
-
-    // Returns popularity level of the given artist
+    
+    /**
+     * Returns popularity level of the given artist
+     **/
     public static String getArtistPopularity(String artist) throws IOException { // WORKS
         JSONObject everything = getOneArtistInfo(artist);
         int popularity = everything.getInt("popularity");
@@ -111,7 +118,9 @@ public class SpotifyAPI {
         return genres.toString();
     }
 
-    // Returns the genre string of the modified artist
+    /**
+     * Returns the genre string of the modified artist
+     **/
     public static String getModifiedArtistGenre(String artist) { // WORKS
         String genreString = "";
         for (int r = 0; r < modGenre.length; r ++) {
@@ -129,43 +138,66 @@ public class SpotifyAPI {
         return "Genres: " + genreString;
     }
 
-    // This is meant to keep track of who is modified and to also set the new genre to the artist
+    /**
+     * This is meant to keep track of who is modified and to also set the new genre to the artist
+     **/
     public static void setModifiedArtistGenre(String artist, String newGenre) { // WORKS
-        boolean alreadyIn = false;
-
-// this part checks if the artist we are updating the infromation for is already in our list, might scrap this idea for logic issues
-
-        //     if (artist.equals(modGenre[row][0])) {
-        // for (int row = 0; row < modGenre.length; row ++) { 
-        //         for (int col = 1; col < modGenre[0].length; col ++) {
-        //             if (modGenre[row][col] == null) {
-        //                 modGenre[row][col] = newGenre;
-        //                 alreadyIn = true;
-        //                 break;
-        //             }
-        //         }
-        //     }
-        // }
-
-        if (!alreadyIn) { // 
-            for (int r = 0; r < modGenre.length; r ++) {
-                if (modGenre[r][0] == null) {
-                    modGenre[r][0] = artist;
-                    for (int c = 1; c < 2; c ++) {
-                        modGenre[r][c] = newGenre;
-                    }
-                    break; // hopefully breaks loop
+        for (int r = 0; r < modGenre.length; r ++) { // iterates through the 
+            if (modGenre[r][0] == null) {
+                modGenre[r][0] = artist;
+                for (int c = 1; c < 2; c ++) {
+                    modGenre[r][c] = newGenre;
                 }
+                break; // hopefully breaks loop
             }
         }
     }
 
-    // Returns a nice list of the given artists top 5 tracks
-    public static String getArtistTopTracks (String artist) throws IOException { // WORKS
+    /**
+     * Returns a nice list of the given artists top 5 tracks, without any formatting
+     * The lack of formatting is needed for a searching feature in App.java
+    **/
+    public static ArrayList<String> getArtistTopTracksRaw(String artist) throws IOException {
         String token = getAccessToken();
         JSONObject artistInfo = getOneArtistInfo(artist);
         String artistId = artistInfo.getString("id");
-        URL url = new URL("https://api.spotify.com/v1/artists/" + artistId + "/top-tracks?market=" + "US");
+        URL url = new URL("https://api.spotify.com/v1/artists/" + artistId + "/top-tracks?market=US");
+        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+        conn.setRequestProperty("Authorization", "Bearer " + token);
+        BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+        StringBuilder response = new StringBuilder();
+        String inputLine;
+        while ((inputLine = in.readLine()) != null) response.append(inputLine);
+        in.close();    
+        JSONObject obj = new JSONObject(response.toString());
+        JSONArray tracks = obj.getJSONArray("tracks");  
+        ArrayList<String> trackList = new ArrayList<>();
+        for (int i = 0; i < Math.min(5, tracks.length()); i++) {
+            JSONObject track = tracks.getJSONObject(i);
+            trackList.add(track.getString("name"));
+        }
+        return trackList;
+    }
+
+    /**
+     * Used to format the track list given getArtistTopTracksRaw(String artist)
+     * Returns with nicely formatted numbers
+     */
+    public static String formatTopTracks(ArrayList<String> tracks) {
+        String result = "Top Tracks:\n";
+        for (int i = 0; i < tracks.size(); i++) {
+            result += "      " + (i + 1) + ". " + tracks.get(i) + "\n";
+        }
+        return result;
+    }
+
+    public static void getArtistAlbums(String artistName) throws IOException {
+        totalDurationMs = 0;
+        totalTracks = 0;
+        String token = getAccessToken();
+        JSONObject artistInfo = getOneArtistInfo(artistName);
+        String artistId = artistInfo.getString("id");
+        URL url = new URL("https://api.spotify.com/v1/artists/" + artistId + "/albums?include_groups=album&limit=5");
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
         conn.setRequestProperty("Authorization", "Bearer " + token);
         BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
@@ -173,19 +205,35 @@ public class SpotifyAPI {
         String inputLine;
         while ((inputLine = in.readLine()) != null) response.append(inputLine);
         in.close();
-        JSONObject obj = new JSONObject(response.toString());
-        JSONArray tracks = obj.getJSONArray("tracks");
-        // System.out.println(tracks); // testing 
-        StringBuilder topTracks = new StringBuilder("Top Tracks:\n");
-        for (int i = 0; i < Math.min(5, tracks.length()); i++) {
-            JSONObject track = tracks.getJSONObject(i);
-            topTracks.append("      ").append( + i + 1).append(". ").append(track.getString("name")).append("\n");
+
+        JSONObject json = new JSONObject(response.toString());
+        JSONArray items = json.getJSONArray("items");
+
+        for (int i = 0; i < items.length(); i++) {
+            JSONObject album = items.getJSONObject(i);
+            String albumId = album.getString("id");
+
+            // Get tracks in this album
+            URL tracksUrl = new URL("https://api.spotify.com/v1/albums/" + albumId + "/tracks");
+            HttpURLConnection trackConn = (HttpURLConnection) tracksUrl.openConnection();
+            trackConn.setRequestProperty("Authorization", "Bearer " + token);
+            BufferedReader trackIn = new BufferedReader(new InputStreamReader(trackConn.getInputStream()));
+            StringBuilder trackResponse = new StringBuilder();
+            while ((inputLine = trackIn.readLine()) != null) trackResponse.append(inputLine);
+            trackIn.close();
+
+            JSONArray tracks = new JSONObject(trackResponse.toString()).getJSONArray("items");
+            totalTracks += tracks.length();
+
+            for (int j = 0; j < tracks.length(); j++) {
+                JSONObject track = tracks.getJSONObject(j);
+                totalDurationMs += track.getInt("duration_ms");
+            }
         }
-        return topTracks.toString();
     }
 
-    public static String getTrack(String artist) throws IOException {
-        
-        return "";
+    public static String getAlbumStats() {
+        int minutes = totalDurationMs / (1000 * 60);
+        return "They have " + totalTracks + " tracks across albums, totaling about " + minutes + " minutes of music!";
     }
 }
