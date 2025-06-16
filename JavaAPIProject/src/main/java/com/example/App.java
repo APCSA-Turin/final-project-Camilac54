@@ -3,7 +3,7 @@ package com.example;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Scanner;
-
+ 
 public class App {
         public static void clearConsole() {
             System.out.print("\033[H\033[2J");
@@ -123,7 +123,7 @@ public class App {
                 String triviaName = scanner.nextLine();
                 SpotifyAPI.getArtistAlbums(triviaName);
                 System.out.println("\n" + SpotifyAPI.getAlbumStats() + "\n");
-                Thread.sleep(3000);
+                Thread.sleep(4500);
                 clearConsole();
                 System.out.println(custom.getBorder());
                 System.out.print("Menu: \n    1. Artist Information\n    2. User Information\n    3. Customize\n    4. Trivia\n    5. Exit\n  Please type a number: ");
